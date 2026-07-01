@@ -8,6 +8,8 @@
 import {
   getPositionalSequence,
   isArtboard,
+  layerKey,
+  collectNestedArtboards,
   isSymbolInstance,
   getSymbolName,
   hasLayerStyle,
@@ -57,14 +59,31 @@ function layerObject(layer, idx) {
 export function parseData(context, onlyArtboards = false) {
   let contextData = context.selection
   if (onlyArtboards) {
-    const aBoards = []
+    const frames = []
+    const seen = {}
+    const collect = (frame) => {
+      if (!frame) return
+      const key = layerKey(frame)
+      if (seen[key]) return
+      seen[key] = true
+      frames.push(frame)
+    }
+
     contextData.forEach((el) => {
-      while (el && !isArtboard(el)) {
-        el = el.parentGroup()
+      // Resolve the Frame scope for this selection: the element itself when it
+      // is a Frame, otherwise the nearest enclosing Frame walking up the tree.
+      let scope = el
+      while (scope && !isArtboard(scope)) {
+        scope = scope.parentGroup()
       }
-      if (el) aBoards.push(el)
+      if (!scope) return
+
+      // Collect the scope Frame and every Frame/Graphic/Stack nested inside it,
+      // at any depth, so nested Frames within the selection are all renamed.
+      collect(scope)
+      collectNestedArtboards(scope, collect)
     })
-    contextData = Array.from(new Set(aBoards))
+    contextData = frames
   }
 
   const data = {

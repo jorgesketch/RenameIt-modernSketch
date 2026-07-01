@@ -17,7 +17,7 @@ import {
   clearHistory,
 } from './History'
 import getTheme from '../../resources/views/theme/index'
-import { setSequenceType } from './RenameHelpers'
+import { setSequenceType, isArtboard } from './RenameHelpers'
 
 function showUpdatedMessage(count, data) {
   const layerStr = count === 1 ? 'Layer' : 'Layers'
@@ -113,6 +113,15 @@ const theUI = (context, data, options) => {
       }
       const layer = item.layer
       layer.name = rename.layer(opts)
+
+      // Frames (including Graphics and Stacks) re-generate their own name unless
+      // it is marked as fixed — e.g. a Stack renames itself when it re-lays out.
+      // Lock the name so the rename we just applied is preserved.
+      if (isArtboard(layer)) {
+        try {
+          layer.setNameIsFixed(true)
+        } catch (error) {} // eslint-disable-line no-empty
+      }
     })
     addRenameHistory(inputData.str)
 
