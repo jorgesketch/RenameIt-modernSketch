@@ -12,8 +12,10 @@ Nested Frames support (branch `nested-frames`).
 ### Changed
 - **Frame detection is now trait-based and depth-independent.** `isArtboard()` previously relied on `isCanvasFrame()`, which by design only matches top-level Frames whose parent is the Page — so nested Frames were invisible to it. Detection now probes the properties that give a group the Frame trait at any depth: `groupBehavior` (Frame/Graphic) and `hasFlexLayout` (Stack), plus Symbol Masters and legacy fallbacks (`src/lib/RenameHelpers.js`).
 - **Renamed Frames keep their name.** Frames (including Stacks) regenerate their own name unless it is marked fixed — a Stack re-lays out and renames itself. The rename now sets `nameIsFixed` on Frames so the applied name is preserved (`src/lib/TheUI.js`).
+- **"Rename Selected Frames" wording** in the plugin manifest (previously "Artboards"), and the auto-update appcast now resolves to this fork's `main` branch (`src/manifest.json`).
 
-> Note: requires a build with the `@rodi01/renameitlib` dependency available (GitHub Packages). See "Building a release" in the README.
+### Removed
+- **Dropped the private `@rodi01/renameitlib` dependency.** The rename engine is now vendored as open source in `src/lib/renameitlib/` (a faithful port of the plugin's own pre-2019 open `Rename.js`/`FindReplace.js`, wrapped in the class API, using the public `change-case`/`titlecase` packages). The plugin now builds from 100% public/local dependencies — no GitHub Packages login required. Behaviour was verified identical across a 33-case keyword + find/replace battery.
 
 ## [4.6.0] - 2026-07-01
 

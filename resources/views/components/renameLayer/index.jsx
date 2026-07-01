@@ -7,7 +7,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Dropdown } from 'react-bootstrap'
-import { Rename } from '@rodi01/renameitlib'
+import { Rename } from '~/src/lib/renameitlib'
 import Input from '../Input'
 import KeywordButton from '../KeywordButton'
 import Preview from '../Preview'

@@ -6,7 +6,7 @@
  */
 import BrowserWindow from 'sketch-module-web-view'
 import track from 'sketch-module-google-analytics'
-import { Rename, FindReplace } from '@rodi01/renameitlib'
+import { Rename, FindReplace } from './renameitlib'
 import { renameData, findReplaceData } from './DataHelper'
 import { exclamations } from './Constants'
 import {
