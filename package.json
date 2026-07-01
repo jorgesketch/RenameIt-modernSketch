@@ -26,6 +26,8 @@
     "postinstall": "npm run build && skpm-link",
     "lint": "eslint '**/*.{js,jsx}' --quiet",
     "format": "prettier --write '**/*.{js,jsx}'",
+    "dist": "bash scripts/build-release.sh",
+    "dist:build": "bash scripts/build-release.sh --build",
     "release": "standard-version"
   },
   "devDependencies": {

@@ -84,6 +84,17 @@ Rename selected frames (and artboards) works the same way as rename selected lay
 
 ![Rename Artboards](/docs/static/img/gifs/artboard_rename.gif)
 
+## Building a release
+
+To package the plugin into an installable/release zip (`dist/Rename-It.sketchplugin.zip`):
+
+```sh
+npm run dist          # zip the current bundle as-is
+npm run dist:build    # recompile src/ with skpm first, then zip
+```
+
+The script prints the `gh release` command to publish the resulting zip. See [`scripts/build-release.sh`](scripts/build-release.sh).
+
 ## Install
 
 #### For Sketch bellow version 51 the latest version of the plugin won't work. [Please download version 3.8.7 here](https://github.com/rodi01/RenameIt/releases/download/v3.8.7/Rename-It.sketchplugin.zip)
