@@ -57,6 +57,6 @@
   "description": "Keep your Sketch files organized, batch rename layers and frames.",
   "name": "Rename-It",
   "disableCocoaScriptPreprocessor": true,
-  "appcast": "https://raw.githubusercontent.com/rodi01/RenameIt/master/.appcast.xml",
+  "appcast": "https://raw.githubusercontent.com/jorgesketch/RenameIt-modernSketch/main/.appcast.xml",
   "author": "Rodrigo Soares"
 }
