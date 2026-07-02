@@ -97,20 +97,34 @@ const theUI = (context, data, options) => {
 
     const inputData = JSON.parse(o)
 
-    data.selection.forEach((item) => {
+    // Use the hierarchy-ordered nested set when the user opted in, otherwise the
+    // flat set of selected/enclosing Frames.
+    const useNested =
+      Boolean(inputData.includeNested) &&
+      data.selectionNested &&
+      data.selectionNested.length > 0
+    const selection = useNested ? data.selectionNested : data.selection
+    const count = selection.length
+
+    selection.forEach((item) => {
       const opts = renameData(
         item,
-        data.selectionCount,
+        count,
         inputData.str,
         inputData.startsFrom,
         data.pageName
       )
 
-      if (inputData.sequenceType === 'xPos') {
-        opts.currIdx = opts.xIdx
-      } else if (inputData.sequenceType === 'yPos') {
-        opts.currIdx = opts.yIdx
+      // Position-based sequences apply only to the flat set; nested Frames are
+      // numbered by tree order (their idx), since position is ambiguous there.
+      if (!useNested) {
+        if (inputData.sequenceType === 'xPos') {
+          opts.currIdx = opts.xIdx
+        } else if (inputData.sequenceType === 'yPos') {
+          opts.currIdx = opts.yIdx
+        }
       }
+
       const layer = item.layer
       layer.name = rename.layer(opts)
 
@@ -129,7 +143,8 @@ const theUI = (context, data, options) => {
     setSequenceType(inputData.sequenceType)
 
     win.destroy()
-    showUpdatedMessage(data.selectionCount, data)
+    // Report the actual number of layers renamed.
+    showUpdatedMessage(count, data)
   })
 
   contents.on('onClickFindReplace', (o) => {

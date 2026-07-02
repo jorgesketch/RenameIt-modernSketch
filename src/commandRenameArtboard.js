@@ -30,7 +30,7 @@ export default function(context) {
     title: "Rename Selected Frames",
     redirectTo: "/rename",
     width: 392,
-    height: 480
+    height: 520
   }
 
   // Load UI

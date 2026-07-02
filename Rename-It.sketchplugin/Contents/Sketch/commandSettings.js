@@ -4537,12 +4537,23 @@ var theUI = function theUI(context, data, options) {
       allowChildLayer: true
     });
     var inputData = JSON.parse(o);
-    data.selection.forEach(function (item) {
-      var opts = Object(_DataHelper__WEBPACK_IMPORTED_MODULE_3__["renameData"])(item, data.selectionCount, inputData.str, inputData.startsFrom, data.pageName);
-      if (inputData.sequenceType === 'xPos') {
-        opts.currIdx = opts.xIdx;
-      } else if (inputData.sequenceType === 'yPos') {
-        opts.currIdx = opts.yIdx;
+
+    // Use the hierarchy-ordered nested set when the user opted in, otherwise the
+    // flat set of selected/enclosing Frames.
+    var useNested = Boolean(inputData.includeNested) && data.selectionNested && data.selectionNested.length > 0;
+    var selection = useNested ? data.selectionNested : data.selection;
+    var count = selection.length;
+    selection.forEach(function (item) {
+      var opts = Object(_DataHelper__WEBPACK_IMPORTED_MODULE_3__["renameData"])(item, count, inputData.str, inputData.startsFrom, data.pageName);
+
+      // Position-based sequences apply only to the flat set; nested Frames are
+      // numbered by tree order (their idx), since position is ambiguous there.
+      if (!useNested) {
+        if (inputData.sequenceType === 'xPos') {
+          opts.currIdx = opts.xIdx;
+        } else if (inputData.sequenceType === 'yPos') {
+          opts.currIdx = opts.yIdx;
+        }
       }
       var layer = item.layer;
       layer.name = rename.layer(opts);
@@ -4561,7 +4572,8 @@ var theUI = function theUI(context, data, options) {
     // Set Sequence Type
     Object(_RenameHelpers__WEBPACK_IMPORTED_MODULE_7__["setSequenceType"])(inputData.sequenceType);
     win.destroy();
-    showUpdatedMessage(data.selectionCount, data);
+    // Report the actual number of layers renamed.
+    showUpdatedMessage(count, data);
   });
   contents.on('onClickFindReplace', function (o) {
     var findReplace = new _renameitlib__WEBPACK_IMPORTED_MODULE_2__["FindReplace"]();

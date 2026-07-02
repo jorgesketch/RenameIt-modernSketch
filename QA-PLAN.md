@@ -43,7 +43,9 @@ Create one page ("QA") containing all of the following, so the later tests have 
 
 ## B. Nested frames — the new feature 🔴
 
-For each: select as described, run **Rename Selected Frames**, type `qa-%N` (start from 1), Rename.
+> **Note (v4.7.0):** nested renaming is now **opt-in**. In the Rename Selected Frames window, tick **"Include nested frames"** for the B1–B7 tests below (the checkbox appears only when the selection actually contains nested frames). With it **unchecked**, only the top-level/selected frame is renamed — that's covered by F2.
+
+For each: select as described, run **Rename Selected Frames**, **check "Include nested frames"**, type `qa-%N` (start from 1), Rename.
 
 - [ ] **B1** Select **T2** (the parent frame only). → The parent **and all 3 nested frames** are renamed `qa-1`, `qa-2`, `qa-3`, `qa-4` (4 total). Plain layers inside are **not** renamed.
 - [ ] **B2** Select **T3** (deep nest, outer frame only). → Every frame down the chain is renamed (count them: should equal the nesting depth).
@@ -110,7 +112,7 @@ Use **Find and Replace…** on layers named things like `btn-primary`, `btn-seco
 ## F. Existing behavior — non-regression 🟡
 
 - [ ] **F1** **Rename Selected Layers** on ordinary layers works exactly as before.
-- [ ] **F2** Renaming a **top-level frame** (select the frame, Rename Selected Frames) still works (this was the old behavior).
+- [ ] **F2** With **"Include nested frames" unchecked** (default): select a frame that has nested frames → **only the top-level frame** is renamed, nested ones are left alone. Re-run with it **checked** → nested ones are renamed too.
 - [ ] **F3** **Undo (⌘Z)** after a rename reverts the names. Note whether it's one undo step or several: `__________`.
 - [ ] **F4** **Rename history** dropdown remembers recent rename strings.
 

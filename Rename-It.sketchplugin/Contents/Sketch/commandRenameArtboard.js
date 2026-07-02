@@ -3934,7 +3934,7 @@ __webpack_require__.r(__webpack_exports__);
     title: "Rename Selected Frames",
     redirectTo: "/rename",
     width: 392,
-    height: 480
+    height: 520
   };
 
   // Load UI
@@ -4545,12 +4545,23 @@ var theUI = function theUI(context, data, options) {
       allowChildLayer: true
     });
     var inputData = JSON.parse(o);
-    data.selection.forEach(function (item) {
-      var opts = Object(_DataHelper__WEBPACK_IMPORTED_MODULE_3__["renameData"])(item, data.selectionCount, inputData.str, inputData.startsFrom, data.pageName);
-      if (inputData.sequenceType === 'xPos') {
-        opts.currIdx = opts.xIdx;
-      } else if (inputData.sequenceType === 'yPos') {
-        opts.currIdx = opts.yIdx;
+
+    // Use the hierarchy-ordered nested set when the user opted in, otherwise the
+    // flat set of selected/enclosing Frames.
+    var useNested = Boolean(inputData.includeNested) && data.selectionNested && data.selectionNested.length > 0;
+    var selection = useNested ? data.selectionNested : data.selection;
+    var count = selection.length;
+    selection.forEach(function (item) {
+      var opts = Object(_DataHelper__WEBPACK_IMPORTED_MODULE_3__["renameData"])(item, count, inputData.str, inputData.startsFrom, data.pageName);
+
+      // Position-based sequences apply only to the flat set; nested Frames are
+      // numbered by tree order (their idx), since position is ambiguous there.
+      if (!useNested) {
+        if (inputData.sequenceType === 'xPos') {
+          opts.currIdx = opts.xIdx;
+        } else if (inputData.sequenceType === 'yPos') {
+          opts.currIdx = opts.yIdx;
+        }
       }
       var layer = item.layer;
       layer.name = rename.layer(opts);
@@ -4569,7 +4580,8 @@ var theUI = function theUI(context, data, options) {
     // Set Sequence Type
     Object(_RenameHelpers__WEBPACK_IMPORTED_MODULE_7__["setSequenceType"])(inputData.sequenceType);
     win.destroy();
-    showUpdatedMessage(data.selectionCount, data);
+    // Report the actual number of layers renamed.
+    showUpdatedMessage(count, data);
   });
   contents.on('onClickFindReplace', function (o) {
     var findReplace = new _renameitlib__WEBPACK_IMPORTED_MODULE_2__["FindReplace"]();
@@ -4662,15 +4674,31 @@ function layerObject(layer, idx) {
 function parseData(context) {
   var onlyArtboards = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
   var contextData = context.selection;
+  var nestedFrames = null;
   if (onlyArtboards) {
-    var frames = [];
-    var seen = {};
-    var collect = function collect(frame) {
+    // Flat set: the nearest enclosing Frame for each selected element (deduped).
+    // This is the classic behaviour used when "Include nested frames" is off.
+    var scopeFrames = [];
+    var scopeSeen = {};
+    var addScope = function addScope(frame) {
       if (!frame) return;
       var key = Object(_RenameHelpers__WEBPACK_IMPORTED_MODULE_0__["layerKey"])(frame);
-      if (seen[key]) return;
-      seen[key] = true;
-      frames.push(frame);
+      if (scopeSeen[key]) return;
+      scopeSeen[key] = true;
+      scopeFrames.push(frame);
+    };
+
+    // Nested set: each scope Frame followed by every Frame/Graphic/Stack nested
+    // within it, in hierarchy (depth-first) order — so numbering follows the
+    // layer tree, not canvas position (which is ambiguous for nested Frames).
+    var allFrames = [];
+    var allSeen = {};
+    var addAll = function addAll(frame) {
+      if (!frame) return;
+      var key = Object(_RenameHelpers__WEBPACK_IMPORTED_MODULE_0__["layerKey"])(frame);
+      if (allSeen[key]) return;
+      allSeen[key] = true;
+      allFrames.push(frame);
     };
     contextData.forEach(function (el) {
       // Resolve the Frame scope for this selection: the element itself when it
@@ -4680,19 +4708,19 @@ function parseData(context) {
         scope = scope.parentGroup();
       }
       if (!scope) return;
-
-      // Collect the scope Frame and every Frame/Graphic/Stack nested inside it,
-      // at any depth, so nested Frames within the selection are all renamed.
-      collect(scope);
-      Object(_RenameHelpers__WEBPACK_IMPORTED_MODULE_0__["collectNestedArtboards"])(scope, collect);
+      addScope(scope);
+      addAll(scope);
+      Object(_RenameHelpers__WEBPACK_IMPORTED_MODULE_0__["collectNestedArtboards"])(scope, addAll);
     });
-    contextData = frames;
+    contextData = scopeFrames;
+    nestedFrames = allFrames;
   }
   var data = {
     doc: context.document,
     pageName: String(context.document.currentPage().name()),
     selectionCount: Array.isArray(contextData) ? contextData.length : contextData.count(),
-    selection: []
+    selection: [],
+    isFrames: Boolean(onlyArtboards)
   };
   var hasSymbol = false;
   var lStyle = false;
@@ -4708,8 +4736,24 @@ function parseData(context) {
   data.hasChildLayer = childLayer;
   data.sequenceType = Object(_RenameHelpers__WEBPACK_IMPORTED_MODULE_0__["getSequenceType"])();
 
-  // Positional Sequence
+  // Positional Sequence (meaningful for flat, side-by-side Frames/layers).
   data.selection = Object(_RenameHelpers__WEBPACK_IMPORTED_MODULE_0__["getPositionalSequence"])(data.selection);
+  // Keep the count in sync with the set actually renamed.
+  data.selectionCount = data.selection.length;
+
+  // Hierarchy-ordered set including nested Frames, for the "Include nested
+  // frames" option. Numbered by tree order (idx), NOT by position.
+  if (nestedFrames) {
+    data.selectionNested = nestedFrames.map(function (layer, i) {
+      return layerObject(layer, i);
+    });
+    data.selectionNestedCount = data.selectionNested.length;
+    data.hasNested = data.selectionNested.length > data.selection.length;
+  } else {
+    data.selectionNested = [];
+    data.selectionNestedCount = 0;
+    data.hasNested = false;
+  }
   return data;
 }
 function getAllDescendants(layer) {
@@ -4725,6 +4769,8 @@ function getAllDescendants(layer) {
 function findReplaceDataParser(context) {
   var data = parseData(context);
   var page = data.doc.currentPage();
+
+  // Page-wide set (for the "Current page" scope).
   var layers;
   try {
     layers = page.childrenIncludingSelf(true);
@@ -4735,6 +4781,23 @@ function findReplaceDataParser(context) {
   layers.forEach(function (layer, i) {
     data.allLayers[i] = layerObject(layer, i);
   });
+
+  // Selection set INCLUDING descendants (for the "Selected layers" scope), so
+  // Find & Replace reaches layers nested inside selected Frames/groups.
+  var selWithDescendants = [];
+  var seen = {};
+  context.selection.forEach(function (el) {
+    getAllDescendants(el).forEach(function (layer) {
+      var key = Object(_RenameHelpers__WEBPACK_IMPORTED_MODULE_0__["layerKey"])(layer);
+      if (seen[key]) return;
+      seen[key] = true;
+      selWithDescendants.push(layer);
+    });
+  });
+  data.selection = selWithDescendants.map(function (layer, i) {
+    return layerObject(layer, i);
+  });
+  data.selectionCount = data.selection.length;
   return data;
 }
 

@@ -58,15 +58,32 @@ function layerObject(layer, idx) {
  */
 export function parseData(context, onlyArtboards = false) {
   let contextData = context.selection
+  let nestedFrames = null
+
   if (onlyArtboards) {
-    const frames = []
-    const seen = {}
-    const collect = (frame) => {
+    // Flat set: the nearest enclosing Frame for each selected element (deduped).
+    // This is the classic behaviour used when "Include nested frames" is off.
+    const scopeFrames = []
+    const scopeSeen = {}
+    const addScope = (frame) => {
       if (!frame) return
       const key = layerKey(frame)
-      if (seen[key]) return
-      seen[key] = true
-      frames.push(frame)
+      if (scopeSeen[key]) return
+      scopeSeen[key] = true
+      scopeFrames.push(frame)
+    }
+
+    // Nested set: each scope Frame followed by every Frame/Graphic/Stack nested
+    // within it, in hierarchy (depth-first) order — so numbering follows the
+    // layer tree, not canvas position (which is ambiguous for nested Frames).
+    const allFrames = []
+    const allSeen = {}
+    const addAll = (frame) => {
+      if (!frame) return
+      const key = layerKey(frame)
+      if (allSeen[key]) return
+      allSeen[key] = true
+      allFrames.push(frame)
     }
 
     contextData.forEach((el) => {
@@ -78,12 +95,13 @@ export function parseData(context, onlyArtboards = false) {
       }
       if (!scope) return
 
-      // Collect the scope Frame and every Frame/Graphic/Stack nested inside it,
-      // at any depth, so nested Frames within the selection are all renamed.
-      collect(scope)
-      collectNestedArtboards(scope, collect)
+      addScope(scope)
+      addAll(scope)
+      collectNestedArtboards(scope, addAll)
     })
-    contextData = frames
+
+    contextData = scopeFrames
+    nestedFrames = allFrames
   }
 
   const data = {
@@ -93,6 +111,7 @@ export function parseData(context, onlyArtboards = false) {
       ? contextData.length
       : contextData.count(),
     selection: [],
+    isFrames: Boolean(onlyArtboards),
   }
 
   let hasSymbol = false
@@ -112,8 +131,22 @@ export function parseData(context, onlyArtboards = false) {
   data.hasChildLayer = childLayer
   data.sequenceType = getSequenceType()
 
-  // Positional Sequence
+  // Positional Sequence (meaningful for flat, side-by-side Frames/layers).
   data.selection = getPositionalSequence(data.selection)
+  // Keep the count in sync with the set actually renamed.
+  data.selectionCount = data.selection.length
+
+  // Hierarchy-ordered set including nested Frames, for the "Include nested
+  // frames" option. Numbered by tree order (idx), NOT by position.
+  if (nestedFrames) {
+    data.selectionNested = nestedFrames.map((layer, i) => layerObject(layer, i))
+    data.selectionNestedCount = data.selectionNested.length
+    data.hasNested = data.selectionNested.length > data.selection.length
+  } else {
+    data.selectionNested = []
+    data.selectionNestedCount = 0
+    data.hasNested = false
+  }
 
   return data
 }
@@ -130,6 +163,8 @@ function getAllDescendants(layer) {
 export function findReplaceDataParser(context) {
   const data = parseData(context)
   const page = data.doc.currentPage()
+
+  // Page-wide set (for the "Current page" scope).
   let layers
   try {
     layers = page.childrenIncludingSelf(true)
@@ -141,6 +176,21 @@ export function findReplaceDataParser(context) {
   layers.forEach((layer, i) => {
     data.allLayers[i] = layerObject(layer, i)
   })
+
+  // Selection set INCLUDING descendants (for the "Selected layers" scope), so
+  // Find & Replace reaches layers nested inside selected Frames/groups.
+  const selWithDescendants = []
+  const seen = {}
+  context.selection.forEach((el) => {
+    getAllDescendants(el).forEach((layer) => {
+      const key = layerKey(layer)
+      if (seen[key]) return
+      seen[key] = true
+      selWithDescendants.push(layer)
+    })
+  })
+  data.selection = selWithDescendants.map((layer, i) => layerObject(layer, i))
+  data.selectionCount = data.selection.length
 
   return data
 }

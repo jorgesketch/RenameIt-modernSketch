@@ -52031,7 +52031,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _images_layerListIc_svg__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../../../images/layerListIc.svg */ "./resources/images/layerListIc.svg");
 /* harmony import */ var _images_layerListIc_svg__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(_images_layerListIc_svg__WEBPACK_IMPORTED_MODULE_11__);
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
-var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7;
+var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8;
 function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
@@ -52066,13 +52066,14 @@ function _taggedTemplateLiteral(e, t) { return t || (t = e.slice(0)), Object.fre
 
 var KeywordsWrapper = styled_components__WEBPACK_IMPORTED_MODULE_1__["default"].div(_templateObject || (_templateObject = _taggedTemplateLiteral(["\n  margin-top: 16px;\n\n  ul {\n    margin-top: 10px;\n    display: flex;\n    flex-flow: wrap;\n    margin-left: -6px;\n    list-style: inside;\n  }\n\n  li {\n    margin: 6px;\n    list-style: none;\n  }\n"])));
 var InputWrapper = styled_components__WEBPACK_IMPORTED_MODULE_1__["default"].div(_templateObject2 || (_templateObject2 = _taggedTemplateLiteral(["\n  display: flex;\n  margin-bottom: ", ";\n  flex-direction: column;\n"])), _GlobalStyles__WEBPACK_IMPORTED_MODULE_7__["InputMargin"]);
-var StyledLabel = styled_components__WEBPACK_IMPORTED_MODULE_1__["default"].label(_templateObject3 || (_templateObject3 = _taggedTemplateLiteral(["\n  ", ";\n  // width: 70px;\n"])), _GlobalStyles__WEBPACK_IMPORTED_MODULE_7__["LabelStyles"]);
-var StyledSelect = styled_components__WEBPACK_IMPORTED_MODULE_1__["default"].select(_templateObject4 || (_templateObject4 = _taggedTemplateLiteral(["\n  ", "\n  flex-grow: 0;\n  -webkit-appearance: none;\n  background-image: url(", ");\n  background-repeat: no-repeat;\n  background-position: right 6px top 50%;\n  background-size: 8px auto;\n  padding-right: 24px;\n"])), _GlobalStyles__WEBPACK_IMPORTED_MODULE_7__["inputCss"], function (props) {
+var NestedWrapper = styled_components__WEBPACK_IMPORTED_MODULE_1__["default"].div(_templateObject3 || (_templateObject3 = _taggedTemplateLiteral(["\n  margin-top: 14px;\n\n  label {\n    display: flex;\n    align-items: center;\n    cursor: pointer;\n    user-select: none;\n  }\n\n  input {\n    margin: 0 8px 0 0;\n  }\n"])));
+var StyledLabel = styled_components__WEBPACK_IMPORTED_MODULE_1__["default"].label(_templateObject4 || (_templateObject4 = _taggedTemplateLiteral(["\n  ", ";\n  // width: 70px;\n"])), _GlobalStyles__WEBPACK_IMPORTED_MODULE_7__["LabelStyles"]);
+var StyledSelect = styled_components__WEBPACK_IMPORTED_MODULE_1__["default"].select(_templateObject5 || (_templateObject5 = _taggedTemplateLiteral(["\n  ", "\n  flex-grow: 0;\n  -webkit-appearance: none;\n  background-image: url(", ");\n  background-repeat: no-repeat;\n  background-position: right 6px top 50%;\n  background-size: 8px auto;\n  padding-right: 24px;\n"])), _GlobalStyles__WEBPACK_IMPORTED_MODULE_7__["inputCss"], function (props) {
   return props.theme.select.arrow;
 });
-var SequenceWrapper = styled_components__WEBPACK_IMPORTED_MODULE_1__["default"].div(_templateObject5 || (_templateObject5 = _taggedTemplateLiteral(["\n  margin-top: 10px;\n  display: flex;\n  height: 32px;\n  align-items: center;\n"])));
-var DDWrapper = styled_components__WEBPACK_IMPORTED_MODULE_1__["default"].span(_templateObject6 || (_templateObject6 = _taggedTemplateLiteral(["\n  display: flex;\n"])));
-var DDText = styled_components__WEBPACK_IMPORTED_MODULE_1__["default"].span(_templateObject7 || (_templateObject7 = _taggedTemplateLiteral(["\n  margin-left: 8px;\n  line-height: 24px;\n"])));
+var SequenceWrapper = styled_components__WEBPACK_IMPORTED_MODULE_1__["default"].div(_templateObject6 || (_templateObject6 = _taggedTemplateLiteral(["\n  margin-top: 10px;\n  display: flex;\n  height: 32px;\n  align-items: center;\n"])));
+var DDWrapper = styled_components__WEBPACK_IMPORTED_MODULE_1__["default"].span(_templateObject7 || (_templateObject7 = _taggedTemplateLiteral(["\n  display: flex;\n"])));
+var DDText = styled_components__WEBPACK_IMPORTED_MODULE_1__["default"].span(_templateObject8 || (_templateObject8 = _taggedTemplateLiteral(["\n  margin-left: 8px;\n  line-height: 24px;\n"])));
 var RenameLayer = /*#__PURE__*/function (_React$Component) {
   function RenameLayer(props) {
     var _this;
@@ -52084,11 +52085,13 @@ var RenameLayer = /*#__PURE__*/function (_React$Component) {
       sequence: 1,
       inputFocus: false,
       previewData: [],
-      selectValue: window.data.sequenceType
+      selectValue: window.data.sequenceType,
+      includeNested: false
     };
     _this.enterFunction = _this.enterFunction.bind(_this);
     _this.onSelectChange = _this.onSelectChange.bind(_this);
     _this.onSequenceTypeChange = _this.onSequenceTypeChange.bind(_this);
+    _this.onToggleNested = _this.onToggleNested.bind(_this);
     _this.rename = new _src_lib_renameitlib__WEBPACK_IMPORTED_MODULE_3__["Rename"]({
       allowChildLayer: true
     });
@@ -52161,12 +52164,23 @@ var RenameLayer = /*#__PURE__*/function (_React$Component) {
       window.postMessage('close');
     }
   }, {
+    key: "onToggleNested",
+    value: function onToggleNested(event) {
+      var _this5 = this;
+      this.setState({
+        includeNested: event.target.checked
+      }, function () {
+        return _this5.previewUpdate();
+      });
+    }
+  }, {
     key: "onSubmit",
     value: function onSubmit() {
       var d = {
         str: this.state.valueAttr,
         startsFrom: this.state.sequence,
-        sequenceType: this.state.selectValue
+        sequenceType: this.state.selectValue,
+        includeNested: this.state.includeNested
       };
       // Track input event
       window.postMessage('track', JSON.stringify({
@@ -52182,13 +52196,13 @@ var RenameLayer = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "clearInput",
     value: function clearInput() {
-      var _this5 = this;
+      var _this6 = this;
       this.setState({
         valueAttr: '',
         showClear: '',
         inputFocus: true
       }, function () {
-        return _this5.previewUpdate();
+        return _this6.previewUpdate();
       });
 
       // Track clear event
@@ -52212,18 +52226,23 @@ var RenameLayer = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "previewUpdate",
     value: function previewUpdate() {
-      var _this6 = this;
+      var _this7 = this;
+      var useNested = this.state.includeNested && window.data.selectionNested && window.data.selectionNested.length > 0;
+      var selection = useNested ? window.data.selectionNested : window.data.selection;
+      var count = selection.length;
       var renamed = [];
-      window.data.selection.forEach(function (item) {
-        var options = Object(_src_lib_DataHelper__WEBPACK_IMPORTED_MODULE_8__["renameData"])(item, window.data.selectionCount, _this6.state.valueAttr, _this6.state.sequence, window.data.pageName);
+      selection.forEach(function (item) {
+        var options = Object(_src_lib_DataHelper__WEBPACK_IMPORTED_MODULE_8__["renameData"])(item, count, _this7.state.valueAttr, _this7.state.sequence, window.data.pageName);
 
-        // check for sequnce type
-        if (_this6.state.selectValue === 'xPos') {
-          options.currIdx = options.xIdx;
-        } else if (_this6.state.selectValue === 'yPos') {
-          options.currIdx = options.yIdx;
+        // Position sequences apply to the flat set only; nested uses tree order.
+        if (!useNested) {
+          if (_this7.state.selectValue === 'xPos') {
+            options.currIdx = options.xIdx;
+          } else if (_this7.state.selectValue === 'yPos') {
+            options.currIdx = options.yIdx;
+          }
         }
-        renamed.push(_this6.rename.layer(options));
+        renamed.push(_this7.rename.layer(options));
       });
       this.setState({
         previewData: renamed
@@ -52232,22 +52251,22 @@ var RenameLayer = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "handleHistory",
     value: function handleHistory(str) {
-      var _this7 = this;
+      var _this8 = this;
       this.setState({
         valueAttr: str,
         inputFocus: true
       }, function () {
-        return _this7.previewUpdate();
+        return _this8.previewUpdate();
       });
     }
   }, {
     key: "onSelectChange",
     value: function onSelectChange(event) {
-      var _this8 = this;
+      var _this9 = this;
       this.setState({
         selectValue: event.target.value
       }, function () {
-        return _this8.previewUpdate();
+        return _this9.previewUpdate();
       });
     }
   }, {
@@ -52277,17 +52296,17 @@ var RenameLayer = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "onSequenceTypeChange",
     value: function onSequenceTypeChange(type) {
-      var _this9 = this;
+      var _this0 = this;
       this.setState({
         selectValue: type
       }, function () {
-        return _this9.previewUpdate();
+        return _this0.previewUpdate();
       });
     }
   }, {
     key: "render",
     value: function render() {
-      var _this0 = this;
+      var _this1 = this;
       var labelWidth = '70px';
       var nameInputAttr = {
         id: 'name',
@@ -52358,7 +52377,7 @@ var RenameLayer = /*#__PURE__*/function (_React$Component) {
           key: d.id,
           className: "keywordBtn"
         }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_KeywordButton__WEBPACK_IMPORTED_MODULE_5__["default"], _extends({}, d, {
-          click: _this0.onButtonClicked.bind(_this0)
+          click: _this1.onButtonClicked.bind(_this1)
         })));
       });
       return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
@@ -52391,7 +52410,14 @@ var RenameLayer = /*#__PURE__*/function (_React$Component) {
       }, this.getSequenceName('xPos')), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_2__["Dropdown"].Item, {
         eventKey: "yPos",
         className: "menuIcon yPosIc"
-      }, this.getSequenceName('yPos')))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(KeywordsWrapper, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_GlobalStyles__WEBPACK_IMPORTED_MODULE_7__["StyledH3"], null, "Keywords"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("ul", null, listItems)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Preview__WEBPACK_IMPORTED_MODULE_6__["default"], {
+      }, this.getSequenceName('yPos')))))), window.data.isFrames && window.data.hasNested ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(NestedWrapper, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", {
+        htmlFor: "includeNested"
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
+        id: "includeNested",
+        type: "checkbox",
+        checked: this.state.includeNested,
+        onChange: this.onToggleNested
+      }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", null, "Include nested frames"))) : null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(KeywordsWrapper, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_GlobalStyles__WEBPACK_IMPORTED_MODULE_7__["StyledH3"], null, "Keywords"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("ul", null, listItems)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Preview__WEBPACK_IMPORTED_MODULE_6__["default"], {
         data: this.state.previewData
       }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_GlobalStyles__WEBPACK_IMPORTED_MODULE_7__["Footer"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_GlobalStyles__WEBPACK_IMPORTED_MODULE_7__["SecondaryButton"], {
         onClick: this.onCancel
