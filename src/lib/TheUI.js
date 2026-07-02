@@ -6,7 +6,7 @@
  */
 import BrowserWindow from 'sketch-module-web-view'
 import track from 'sketch-module-google-analytics'
-import { Rename, FindReplace } from '@rodi01/renameitlib'
+import { Rename, FindReplace } from './renameitlib'
 import { renameData, findReplaceData } from './DataHelper'
 import { exclamations } from './Constants'
 import {
@@ -17,7 +17,7 @@ import {
   clearHistory,
 } from './History'
 import getTheme from '../../resources/views/theme/index'
-import { setSequenceType } from './RenameHelpers'
+import { setSequenceType, isArtboard } from './RenameHelpers'
 
 function showUpdatedMessage(count, data) {
   const layerStr = count === 1 ? 'Layer' : 'Layers'
@@ -97,22 +97,45 @@ const theUI = (context, data, options) => {
 
     const inputData = JSON.parse(o)
 
-    data.selection.forEach((item) => {
+    // Use the hierarchy-ordered nested set when the user opted in, otherwise the
+    // flat set of selected/enclosing Frames.
+    const useNested =
+      Boolean(inputData.includeNested) &&
+      data.selectionNested &&
+      data.selectionNested.length > 0
+    const selection = useNested ? data.selectionNested : data.selection
+    const count = selection.length
+
+    selection.forEach((item) => {
       const opts = renameData(
         item,
-        data.selectionCount,
+        count,
         inputData.str,
         inputData.startsFrom,
         data.pageName
       )
 
-      if (inputData.sequenceType === 'xPos') {
-        opts.currIdx = opts.xIdx
-      } else if (inputData.sequenceType === 'yPos') {
-        opts.currIdx = opts.yIdx
+      // Position-based sequences apply only to the flat set; nested Frames are
+      // numbered by tree order (their idx), since position is ambiguous there.
+      if (!useNested) {
+        if (inputData.sequenceType === 'xPos') {
+          opts.currIdx = opts.xIdx
+        } else if (inputData.sequenceType === 'yPos') {
+          opts.currIdx = opts.yIdx
+        }
       }
+
       const layer = item.layer
       layer.name = rename.layer(opts)
+
+      // Frames (including Graphics and Stacks) re-generate their own name unless
+      // it is marked as fixed — e.g. a Stack renames itself when it re-lays out.
+      // Lock the name so the rename we just applied is preserved.
+      if (isArtboard(layer)) {
+        try {
+          layer.setNameIsFixed(true)
+        } catch (error) {} // eslint-disable-line no-empty
+      }
     })
     addRenameHistory(inputData.str)
 
@@ -120,7 +143,8 @@ const theUI = (context, data, options) => {
     setSequenceType(inputData.sequenceType)
 
     win.destroy()
-    showUpdatedMessage(data.selectionCount, data)
+    // Report the actual number of layers renamed.
+    showUpdatedMessage(count, data)
   })
 
   contents.on('onClickFindReplace', (o) => {

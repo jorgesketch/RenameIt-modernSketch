@@ -7,7 +7,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Dropdown } from 'react-bootstrap'
-import { Rename } from '@rodi01/renameitlib'
+import { Rename } from '~/src/lib/renameitlib'
 import Input from '../Input'
 import KeywordButton from '../KeywordButton'
 import Preview from '../Preview'
@@ -47,6 +47,21 @@ const InputWrapper = styled.div`
   display: flex;
   margin-bottom: ${InputMargin};
   flex-direction: column;
+`
+
+const NestedWrapper = styled.div`
+  margin-top: 14px;
+
+  label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  input {
+    margin: 0 8px 0 0;
+  }
 `
 const StyledLabel = styled.label`
   ${LabelStyles};
@@ -90,10 +105,12 @@ class RenameLayer extends React.Component {
       inputFocus: false,
       previewData: [],
       selectValue: window.data.sequenceType,
+      includeNested: false,
     }
     this.enterFunction = this.enterFunction.bind(this)
     this.onSelectChange = this.onSelectChange.bind(this)
     this.onSequenceTypeChange = this.onSequenceTypeChange.bind(this)
+    this.onToggleNested = this.onToggleNested.bind(this)
 
     this.rename = new Rename({ allowChildLayer: true })
   }
@@ -157,11 +174,18 @@ class RenameLayer extends React.Component {
     window.postMessage('close')
   }
 
+  onToggleNested(event) {
+    this.setState({ includeNested: event.target.checked }, () =>
+      this.previewUpdate()
+    )
+  }
+
   onSubmit() {
     const d = {
       str: this.state.valueAttr,
       startsFrom: this.state.sequence,
       sequenceType: this.state.selectValue,
+      includeNested: this.state.includeNested,
     }
     // Track input event
     window.postMessage(
@@ -211,21 +235,32 @@ class RenameLayer extends React.Component {
   }
 
   previewUpdate() {
+    const useNested =
+      this.state.includeNested &&
+      window.data.selectionNested &&
+      window.data.selectionNested.length > 0
+    const selection = useNested
+      ? window.data.selectionNested
+      : window.data.selection
+    const count = selection.length
+
     const renamed = []
-    window.data.selection.forEach((item) => {
+    selection.forEach((item) => {
       const options = renameData(
         item,
-        window.data.selectionCount,
+        count,
         this.state.valueAttr,
         this.state.sequence,
         window.data.pageName
       )
 
-      // check for sequnce type
-      if (this.state.selectValue === 'xPos') {
-        options.currIdx = options.xIdx
-      } else if (this.state.selectValue === 'yPos') {
-        options.currIdx = options.yIdx
+      // Position sequences apply to the flat set only; nested uses tree order.
+      if (!useNested) {
+        if (this.state.selectValue === 'xPos') {
+          options.currIdx = options.xIdx
+        } else if (this.state.selectValue === 'yPos') {
+          options.currIdx = options.yIdx
+        }
       }
 
       renamed.push(this.rename.layer(options))
@@ -417,6 +452,19 @@ class RenameLayer extends React.Component {
             </Dropdown>
           </SequenceWrapper>
         </InputWrapper>
+        {window.data.isFrames && window.data.hasNested ? (
+          <NestedWrapper>
+            <label htmlFor="includeNested">
+              <input
+                id="includeNested"
+                type="checkbox"
+                checked={this.state.includeNested}
+                onChange={this.onToggleNested}
+              />
+              <span>Include nested frames</span>
+            </label>
+          </NestedWrapper>
+        ) : null}
         <KeywordsWrapper>
           <StyledH3>Keywords</StyledH3>
           <ul>{listItems}</ul>

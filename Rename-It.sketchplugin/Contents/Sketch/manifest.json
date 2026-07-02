@@ -3,6 +3,7 @@
   "bundleVersion": 1,
   "identifier": "com.taptap.ninja.rename-it",
   "homepage": "https://renameit.design/sketch/",
+  "appcast": "https://raw.githubusercontent.com/jorgesketch/RenameIt-modernSketch/main/.appcast.xml",
   "icon": "icon.png",
   "commands": [
     {
@@ -26,7 +27,7 @@
       "identifier": "renameit.renameArtboard",
       "script": "commandRenameArtboard.js",
       "shortcut": "shift ctrl option r",
-      "description": "Rename Selected artboard(s) at the root of the currently selected item.",
+      "description": "Rename selected frames, graphics and stacks — including nested ones.",
       "icon": "renameit_ic.png"
     },
     {
@@ -53,10 +54,9 @@
       "renameit.donate"
     ]
   },
-  "version": "4.6.0",
+  "version": "4.8.0",
   "description": "Keep your Sketch files organized, batch rename layers and frames.",
   "name": "Rename-It",
   "disableCocoaScriptPreprocessor": true,
-  "appcast": "https://raw.githubusercontent.com/jorgesketch/RenameIt-modernSketch/main/.appcast.xml",
   "author": "Rodrigo Soares"
 }

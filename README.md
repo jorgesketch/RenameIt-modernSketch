@@ -4,6 +4,13 @@ This is a community continuation of [Rename It for Sketch](https://github.com/ro
 
 The original plugin's "Rename Artboards" command only worked with **artboards**. Newer versions of Sketch introduced **frames**, which the original detection logic (`MSArtboardGroup`) didn't recognize. This fork restores that command on modern Sketch.
 
+## What's new in 4.8.0
+
+* **Rename nested frames, graphics & stacks** — the "Rename Selected Frames" command has an *Include nested frames* checkbox (default off). When enabled, it renames every frame/graphic/stack nested within your selection, at any depth, numbered in layer‑tree order (`resources/views/components/renameLayer`, `src/lib/Utilities.js`).
+* **Find & Replace reaches nested layers** — the "Selected layers" scope now includes layers nested inside the selection.
+* **Stacks keep their name** — renamed frames are marked fixed so a stack re‑layout won't revert the name.
+* **Self-contained build** — the previously private rename engine (`@rodi01/renameitlib`) is vendored as open source, so the plugin builds with 100% public dependencies.
+
 ## What's new in 4.6.0
 
 * **Frames compatibility** — artboard/frame detection now uses Sketch's `isCanvasFrame()` API, so the "Rename Selected Frames" command works with frames as well as artboards (`src/lib/RenameHelpers.js`).

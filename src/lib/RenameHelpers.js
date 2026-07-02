@@ -9,12 +9,92 @@ import Settings from 'sketch/settings' // eslint-disable-line
 const SEQUENCE_KEY = 'sequenceType'
 
 /**
- * Check if is artboard
- * @param  {Object}  layer The layers
+ * Check if a layer is a Frame (this includes Graphics and Stacks, which are
+ * Frames under the hood) or a Symbol Master.
+ *
+ * Note: `isCanvasFrame()` is intentionally NOT used as the primary check — it
+ * only returns true for top-level Frames whose parent is the Page, so it misses
+ * nested Frames. In Sketch's model a group carries the `.frame` trait when its
+ * `groupBehavior` is Frame (1) or Graphic (2), or when it has a Stack (flex)
+ * layout applied. Those are the properties we probe here so nested Frames,
+ * Graphics and Stacks are all recognised at any depth.
+ *
+ * @param  {Object}  layer The layer
  * @return {Boolean}
  */
 export function isArtboard(layer) {
-  return (layer.isCanvasFrame && layer.isCanvasFrame()) || layer instanceof MSSymbolMaster
+  // Symbol Masters are Frame-like and renamed by the Frames command.
+  try {
+    if (layer instanceof MSSymbolMaster) return true
+  } catch (error) {} // eslint-disable-line no-empty
+
+  // Shape groups subclass MSLayerGroup but can never be Frames/Graphics.
+  try {
+    if (layer instanceof MSShapeGroup) return false
+  } catch (error) {} // eslint-disable-line no-empty
+
+  // Frames (groupBehavior 1) and Graphics (groupBehavior 2).
+  try {
+    const behavior = Number(layer.groupBehavior())
+    if (behavior === 1 || behavior === 2) return true
+  } catch (error) {} // eslint-disable-line no-empty
+
+  // Stacks: a default group with a flex/stack layout gains the Frame trait.
+  try {
+    if (layer.hasFlexLayout()) return true
+  } catch (error) {} // eslint-disable-line no-empty
+
+  // Legacy fallbacks for older Sketch versions (pre-Frames model).
+  try {
+    if (layer.isCanvasFrame && layer.isCanvasFrame()) return true
+  } catch (error) {} // eslint-disable-line no-empty
+  try {
+    if (typeof MSArtboardGroup !== 'undefined' && layer instanceof MSArtboardGroup)
+      return true
+  } catch (error) {} // eslint-disable-line no-empty
+
+  return false
+}
+
+/**
+ * A stable identity key for a layer, used to de-duplicate collected Frames.
+ *
+ * @param  {Object} layer The layer
+ * @return {String}
+ */
+export function layerKey(layer) {
+  try {
+    return String(layer.objectID())
+  } catch (error) {} // eslint-disable-line no-empty
+  return String(layer)
+}
+
+/**
+ * Recursively collect every nested Frame/Graphic/Stack within `layer` (at any
+ * depth) and hand each one to the `collect` callback. `layer` itself is not
+ * collected — only its descendants.
+ *
+ * @param {Object}   layer   The layer to descend into
+ * @param {Function} collect Called with each nested Frame found
+ */
+export function collectNestedArtboards(layer, collect) {
+  let children
+  try {
+    children = layer.layers()
+  } catch (error) {
+    return
+  }
+  if (!children) return
+
+  const count = typeof children.count === 'function' ? children.count() : children.length
+  for (let i = 0; i < count; i += 1) {
+    const child =
+      typeof children.objectAtIndex === 'function'
+        ? children.objectAtIndex(i)
+        : children[i]
+    if (isArtboard(child)) collect(child)
+    collectNestedArtboards(child, collect)
+  }
 }
 
 /**
