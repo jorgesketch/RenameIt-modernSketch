@@ -898,99 +898,6 @@ function sentenceCase(input, options) {
 
 /***/ }),
 
-/***/ "./node_modules/sketch-module-google-analytics/index.js":
-/*!**************************************************************!*\
-  !*** ./node_modules/sketch-module-google-analytics/index.js ***!
-  \**************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-var Settings = __webpack_require__(/*! sketch/settings */ "sketch/settings");
-
-var kUUIDKey = "google.analytics.uuid";
-var uuid = null
-var uuid = NSUserDefaults.standardUserDefaults().objectForKey(kUUIDKey);
-if (!uuid) {
-  uuid = NSUUID.UUID().UUIDString();
-  NSUserDefaults.standardUserDefaults().setObject_forKey(uuid, kUUIDKey)
-}
-
-var sketchVersion = Settings.version.sketch
-var variant = sketchVersion >= 72 ? BCSketchInfo.shared().metadata().variant : MSApplicationMetadata.metadata().variant
-var source =
-  "Sketch " +
-  (variant == "NONAPPSTORE" ? "" : variant + " ") +
-  sketchVersion;
-
-function jsonToQueryString(json) {
-  return Object.keys(json)
-    .map(function(key) {
-      return encodeURIComponent(key) + "=" + encodeURIComponent(json[key]);
-    })
-    .join("&");
-}
-
-function makeRequest(url, options) {
-  if (!url) {
-    return
-  }
-
-  if (options && options.makeRequest) {
-    return options.makeRequest(url)
-  }
-  if (options && options.debug) {
-    var request = NSURLRequest.requestWithURL(url)
-    var responsePtr = MOPointer.alloc().init();
-    var errorPtr = MOPointer.alloc().init();
-
-    var data = NSURLConnection.sendSynchronousRequest_returningResponse_error(request, responsePtr, errorPtr)
-    return data ? NSString.alloc().initWithData_encoding(data, NSUTF8StringEncoding) : errorPtr.value()
-  }
-
-  NSURLSession.sharedSession()
-    .dataTaskWithURL(url)
-    .resume();
-}
-
-module.exports = function(trackingId, hitType, props, options) {
-  if (!Settings.globalSettingForKey("analyticsEnabled")) {
-    // the user didn't enable sharing analytics
-    return 'the user didn\'t enable sharing analytics';
-  }
-
-  var payload = {
-    v: 1,
-    tid: trackingId,
-    ds: source,
-    cid: uuid,
-    t: hitType
-  };
-
-  if (typeof __command !== "undefined") {
-    payload.an = __command.pluginBundle().name();
-    payload.aid = __command.pluginBundle().identifier();
-    payload.av = __command.pluginBundle().version();
-  }
-
-  if (props) {
-    Object.keys(props).forEach(function(key) {
-      payload[key] = props[key];
-    });
-  }
-
-  var url = NSURL.URLWithString(
-    "https://www.google-analytics.com/" + (options && options.debug ? "debug/" : "") + "collect?" +
-      jsonToQueryString(payload) +
-      "&z=" +
-      NSUUID.UUID().UUIDString()
-  );
-
-  return makeRequest(url, options)
-};
-
-
-/***/ }),
-
 /***/ "./node_modules/sketch-module-web-view/lib/browser-api.js":
 /*!****************************************************************!*\
   !*** ./node_modules/sketch-module-web-view/lib/browser-api.js ***!
@@ -4461,14 +4368,12 @@ function setSequenceType(type) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var sketch_module_web_view__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! sketch-module-web-view */ "./node_modules/sketch-module-web-view/lib/index.js");
 /* harmony import */ var sketch_module_web_view__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(sketch_module_web_view__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var sketch_module_google_analytics__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! sketch-module-google-analytics */ "./node_modules/sketch-module-google-analytics/index.js");
-/* harmony import */ var sketch_module_google_analytics__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(sketch_module_google_analytics__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _renameitlib__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./renameitlib */ "./src/lib/renameitlib/index.js");
-/* harmony import */ var _DataHelper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DataHelper */ "./src/lib/DataHelper.js");
-/* harmony import */ var _Constants__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Constants */ "./src/lib/Constants.js");
-/* harmony import */ var _History__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./History */ "./src/lib/History.js");
-/* harmony import */ var _resources_views_theme_index__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../resources/views/theme/index */ "./resources/views/theme/index.js");
-/* harmony import */ var _RenameHelpers__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./RenameHelpers */ "./src/lib/RenameHelpers.js");
+/* harmony import */ var _renameitlib__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./renameitlib */ "./src/lib/renameitlib/index.js");
+/* harmony import */ var _DataHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./DataHelper */ "./src/lib/DataHelper.js");
+/* harmony import */ var _Constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Constants */ "./src/lib/Constants.js");
+/* harmony import */ var _History__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./History */ "./src/lib/History.js");
+/* harmony import */ var _resources_views_theme_index__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../resources/views/theme/index */ "./resources/views/theme/index.js");
+/* harmony import */ var _RenameHelpers__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./RenameHelpers */ "./src/lib/RenameHelpers.js");
 /**
  * @Author: Rodrigo Soares <rodrigo>
  * @Date:   2017-11-17T20:46:17-08:00
@@ -4482,14 +4387,13 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
 function showUpdatedMessage(count, data) {
   var layerStr = count === 1 ? 'Layer' : 'Layers';
-  data.doc.showMessage("".concat(_Constants__WEBPACK_IMPORTED_MODULE_4__["exclamations"][Math.floor(Math.random() * _Constants__WEBPACK_IMPORTED_MODULE_4__["exclamations"].length)], " ").concat(count, " ").concat(layerStr, " renamed."));
+  data.doc.showMessage("".concat(_Constants__WEBPACK_IMPORTED_MODULE_3__["exclamations"][Math.floor(Math.random() * _Constants__WEBPACK_IMPORTED_MODULE_3__["exclamations"].length)], " ").concat(count, " ").concat(layerStr, " renamed."));
 }
 var theUI = function theUI(context, data, options) {
   var themeColor = typeof MSTheme !== 'undefined' && MSTheme.sharedTheme().isDark() ? 'dark' : 'light';
-  var theme = Object(_resources_views_theme_index__WEBPACK_IMPORTED_MODULE_6__["default"])(themeColor);
+  var theme = Object(_resources_views_theme_index__WEBPACK_IMPORTED_MODULE_5__["default"])(themeColor);
   var winOptions = {
     identifier: options.identifier,
     title: options.title,
@@ -4505,7 +4409,7 @@ var theUI = function theUI(context, data, options) {
   };
   var win = new sketch_module_web_view__WEBPACK_IMPORTED_MODULE_0___default.a(winOptions);
   var contents = win.webContents;
-  var history = Object(_History__WEBPACK_IMPORTED_MODULE_5__["getHistory"])();
+  var history = Object(_History__WEBPACK_IMPORTED_MODULE_4__["getHistory"])();
   var whereTo = options.redirectTo;
   contents.insertJS("document.addEventListener(\"keydown\",function(e){if(e.keyCode===27)window.postMessage(\"close\")},false);\n    window.theme=".concat(JSON.stringify(theme), ";\n    window.redirectTo=\"").concat(whereTo, "\";\n    window.data=").concat(JSON.stringify(data), ";\n    window.dataHistory=").concat(JSON.stringify(history), ";\n    "));
   win.once('ready-to-show', function () {
@@ -4519,7 +4423,7 @@ var theUI = function theUI(context, data, options) {
   });
   win.loadURL(__webpack_require__(/*! ../../resources/webview.html */ "./resources/webview.html"));
   var getData = function getData() {
-    var history = Object(_History__WEBPACK_IMPORTED_MODULE_5__["getHistory"])();
+    var history = Object(_History__WEBPACK_IMPORTED_MODULE_4__["getHistory"])();
     var whereTo = options.redirectTo;
     contents.executeJavaScript("\n          window.redirectTo=\"".concat(whereTo, "\";\n          window.data=").concat(JSON.stringify(data), ";\n          window.dataHistory=").concat(JSON.stringify(history), ";"));
   };
@@ -4533,7 +4437,7 @@ var theUI = function theUI(context, data, options) {
     win.destroy();
   });
   contents.on('onClickRename', function (o) {
-    var rename = new _renameitlib__WEBPACK_IMPORTED_MODULE_2__["Rename"]({
+    var rename = new _renameitlib__WEBPACK_IMPORTED_MODULE_1__["Rename"]({
       allowChildLayer: true
     });
     var inputData = JSON.parse(o);
@@ -4544,7 +4448,7 @@ var theUI = function theUI(context, data, options) {
     var selection = useNested ? data.selectionNested : data.selection;
     var count = selection.length;
     selection.forEach(function (item) {
-      var opts = Object(_DataHelper__WEBPACK_IMPORTED_MODULE_3__["renameData"])(item, count, inputData.str, inputData.startsFrom, data.pageName);
+      var opts = Object(_DataHelper__WEBPACK_IMPORTED_MODULE_2__["renameData"])(item, count, inputData.str, inputData.startsFrom, data.pageName);
 
       // Position-based sequences apply only to the flat set; nested Frames are
       // numbered by tree order (their idx), since position is ambiguous there.
@@ -4561,49 +4465,51 @@ var theUI = function theUI(context, data, options) {
       // Frames (including Graphics and Stacks) re-generate their own name unless
       // it is marked as fixed — e.g. a Stack renames itself when it re-lays out.
       // Lock the name so the rename we just applied is preserved.
-      if (Object(_RenameHelpers__WEBPACK_IMPORTED_MODULE_7__["isArtboard"])(layer)) {
+      if (Object(_RenameHelpers__WEBPACK_IMPORTED_MODULE_6__["isArtboard"])(layer)) {
         try {
           layer.setNameIsFixed(true);
         } catch (error) {} // eslint-disable-line no-empty
       }
     });
-    Object(_History__WEBPACK_IMPORTED_MODULE_5__["addRenameHistory"])(inputData.str);
+    Object(_History__WEBPACK_IMPORTED_MODULE_4__["addRenameHistory"])(inputData.str);
 
     // Set Sequence Type
-    Object(_RenameHelpers__WEBPACK_IMPORTED_MODULE_7__["setSequenceType"])(inputData.sequenceType);
+    Object(_RenameHelpers__WEBPACK_IMPORTED_MODULE_6__["setSequenceType"])(inputData.sequenceType);
     win.destroy();
     // Report the actual number of layers renamed.
     showUpdatedMessage(count, data);
   });
   contents.on('onClickFindReplace', function (o) {
-    var findReplace = new _renameitlib__WEBPACK_IMPORTED_MODULE_2__["FindReplace"]();
+    var findReplace = new _renameitlib__WEBPACK_IMPORTED_MODULE_1__["FindReplace"]();
     var inputData = JSON.parse(o);
     var selData = inputData.searchScope === 'page' ? data.allLayers : data.selection;
     var totalRenamed = 0;
     selData.forEach(function (item) {
-      var opts = Object(_DataHelper__WEBPACK_IMPORTED_MODULE_3__["findReplaceData"])(item, inputData.findText, inputData.replaceText, Boolean(inputData.caseSensitive));
+      var opts = Object(_DataHelper__WEBPACK_IMPORTED_MODULE_2__["findReplaceData"])(item, inputData.findText, inputData.replaceText, Boolean(inputData.caseSensitive));
       if (findReplace.match(opts)) {
         var layer = item.layer;
         layer.name = findReplace.layer(opts);
         totalRenamed += 1;
       }
     });
-    Object(_History__WEBPACK_IMPORTED_MODULE_5__["addFindHistory"])(inputData.findText);
-    Object(_History__WEBPACK_IMPORTED_MODULE_5__["addReplaceHistory"])(inputData.replaceText);
+    Object(_History__WEBPACK_IMPORTED_MODULE_4__["addFindHistory"])(inputData.findText);
+    Object(_History__WEBPACK_IMPORTED_MODULE_4__["addReplaceHistory"])(inputData.replaceText);
     win.destroy();
     showUpdatedMessage(totalRenamed, data);
   });
   contents.on('onClearHistory', function () {
-    Object(_History__WEBPACK_IMPORTED_MODULE_5__["clearHistory"])();
+    Object(_History__WEBPACK_IMPORTED_MODULE_4__["clearHistory"])();
     win.destroy();
   });
   contents.on('externalLinkClicked', function (url) {
     NSWorkspace.sharedWorkspace().openURL(NSURL.URLWithString(url));
   });
-  contents.on('track', function (options) {
-    var parsedOptions = JSON.parse(options);
-    sketch_module_google_analytics__WEBPACK_IMPORTED_MODULE_1___default()('UA-104184459-2', parsedOptions.hitType, parsedOptions.payload);
-  });
+
+  // Analytics removed: Google shut down Universal Analytics, and the tracking
+  // module crashed on Sketch versions with a patch component (e.g. 2026.2.1) —
+  // it coerced the version string to NaN and fell back to the long-removed
+  // MSApplicationMetadata class. The webview still emits this event.
+  contents.on('track', function () {});
 };
 /* harmony default export */ __webpack_exports__["default"] = (theUI);
 

@@ -2,6 +2,16 @@
 
 All notable changes to this fork are documented here. This project adheres to [Semantic Versioning](https://semver.org).
 
+## [4.8.1] - 2026-07-16
+
+Fixes the plugin failing to open on Sketch 2026.2.1.
+
+### Fixed
+- **All plugin windows failed to open on Sketch 2026.2.1** with `ReferenceError: Can't find variable: MSApplicationMetadata`. The `sketch-module-google-analytics` dependency decided at import time between a modern and a legacy metadata API by coercing the Sketch version string to a number. Three-component versions like `2026.2.1` coerce to `NaN`, so the check failed and the module called the long-removed `MSApplicationMetadata` class, crashing every command that loads the UI (Rename Selected Layers, Rename Selected Frames, Find & Replace, Settings).
+
+### Removed
+- **Dropped the `sketch-module-google-analytics` dependency** rather than patching it: Google shut down Universal Analytics in 2024, so the `UA-…` hits it sent went nowhere. The webview's `track` event is now a no-op (`src/lib/TheUI.js`, `package.json`).
+
 ## [4.8.0] - 2026-07-02
 
 Nested Frames support.

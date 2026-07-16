@@ -5,7 +5,6 @@
  * @Last modified time: 2017-12-02T21:22:22-08:00
  */
 import BrowserWindow from 'sketch-module-web-view'
-import track from 'sketch-module-google-analytics'
 import { Rename, FindReplace } from './renameitlib'
 import { renameData, findReplaceData } from './DataHelper'
 import { exclamations } from './Constants'
@@ -182,10 +181,11 @@ const theUI = (context, data, options) => {
     NSWorkspace.sharedWorkspace().openURL(NSURL.URLWithString(url))
   })
 
-  contents.on('track', (options) => {
-    const parsedOptions = JSON.parse(options)
-    track('UA-104184459-2', parsedOptions.hitType, parsedOptions.payload)
-  })
+  // Analytics removed: Google shut down Universal Analytics, and the tracking
+  // module crashed on Sketch versions with a patch component (e.g. 2026.2.1) —
+  // it coerced the version string to NaN and fell back to the long-removed
+  // MSApplicationMetadata class. The webview still emits this event.
+  contents.on('track', () => {})
 }
 
 export default theUI
